@@ -1,0 +1,8 @@
+node_modules/
+test-results/
+playwright-report/
+*.zip
+# Ignore all Excel files by default (generated reports)
+*.xlsx
+# But allow the source assignment files
+!Assignment I - *.xlsx
