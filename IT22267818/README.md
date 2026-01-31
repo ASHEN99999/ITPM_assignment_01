@@ -41,11 +41,11 @@ After running the tests, verify that `test-results/results.json` exists. Then, g
 npx ts-node scripts/generate_report.ts
 ```
 
-This will create a new Excel file (e.g., `IT12345678_TestCases.xlsx`) in the project root, containing the test case details, actual outputs, and status.
+This will create a new Excel file (e.g., `IT22267818_TestCases.xlsx`) in the project root, containing the test case details, actual outputs, and status.
 
 ## Project Structure
 
 - `tests/assignment.spec.ts`: Main test script.
 - `tests/test_data.ts`: Definition of all 35 test scenarios.
 - `scripts/generate_report.ts`: Script to populate the Excel template.
-- `ITPM_Assignment1_TestCases_35_ONLY.xlsx`: The blank template file.
+- `Assignment I - IT22267818 New(1).xlsx`: The blank template file.

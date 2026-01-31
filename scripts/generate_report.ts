@@ -4,7 +4,7 @@ import * as fs from 'fs';
 
 // Configuration
 const REG_NO = 'IT22267818'; // Extracted from filename
-const INPUT_EXCEL = 'Assignment I - IT22267818 New(1).xlsx';
+const INPUT_EXCEL = 'Assignment I - IT22267818_TEST_CASE.xlsx';
 const OUTPUT_EXCEL = `${REG_NO}_TestCases.xlsx`;
 const RESULTS_JSON = path.join(__dirname, '../test-results/results.json');
 

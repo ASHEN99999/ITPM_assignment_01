@@ -1,9 +1,11 @@
 import * as ExcelJS from 'exceljs';
+import * as fs from 'fs';
 import * as path from 'path';
 
 const EXCEL_FILE = 'Assignment I - IT22267818_TEST_CASE.xlsx';
+const OUTPUT_FILE = 'tests/test_data.ts';
 
-async function extractData() {
+async function generateTestData() {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(EXCEL_FILE);
     const worksheet = workbook.getWorksheet(1);
@@ -19,33 +21,14 @@ async function extractData() {
     worksheet.eachRow((row, rowNumber) => {
         if (rowNumber === 1) return; // Skip header
 
-        // Map columns based on standard template assumption or dump to see
-        // Usually:
-        // A (1): ID
-        // B (2): Description
-        // C (3): Length
-        // D (4): Input
-        // E (5): Expected
-        // F (6): Actual (Should be empty in new file or ignored)
-        // G (7): Status
-        // H (8): Comment
-        // I (9): Category (Coverage)
-
         const id = row.getCell(1).text;
         if (!id) return; // Skip empty rows
 
-        // Parse Category (Column 9) which might be multi-line
-        // "Input Type / Domain"
-        // "Sentence / Grammar Focus"
-        // "Input Length Type"
-        // "Quality Focus"
         const coverageText = row.getCell(9).text;
         const coverageLines = coverageText.split('\n').map(l => l.trim().replace(/^•\s*/, ''));
 
-        // Attempt to extract fields safely
         const category = coverageLines[0] || '';
         const grammar = coverageLines[1] || '';
-        // length is usually coverageLines[2] OR separate column C
         const length = row.getCell(3).text;
         const quality = coverageLines[3] || '';
 
@@ -53,8 +36,8 @@ async function extractData() {
             id: id,
             description: row.getCell(2).text,
             length: length,
-            input: row.getCell(4).text, // Column D
-            expectedOutput: row.getCell(5).text, // Column E
+            input: row.getCell(4).text,
+            expectedOutput: row.getCell(5).text,
             type: id.startsWith('Pos_Fun') ? 'Positive' : (id.startsWith('Neg_Fun') ? 'Negative' : 'UI'),
             category: category,
             grammarFocus: grammar,
@@ -62,7 +45,26 @@ async function extractData() {
         });
     });
 
-    console.log(JSON.stringify(testCases, null, 2));
+    const tsContent = `export interface TestCase {
+  id: string;
+  description: string;
+  input: string;
+  expectedOutput: string; // The "Expected Output" column in Excel
+  type: 'Positive' | 'Negative' | 'UI';
+  category: string; // "What is covered by the test" -> Input Type / Domain
+  length: 'S' | 'M' | 'L'; // Input length type
+  grammarFocus?: string;
+  qualityFocus: string; // Using string to accommodate variations
 }
 
-extractData().catch(console.error);
+export const testCases: TestCase[] = ${JSON.stringify(testCases, null, 2)};
+`;
+
+    fs.writeFileSync(OUTPUT_FILE, tsContent, 'utf8');
+    console.log(`✅ Generated ${OUTPUT_FILE} with ${testCases.length} test cases`);
+    console.log(`   - Positive: ${testCases.filter(tc => tc.type === 'Positive').length}`);
+    console.log(`   - Negative: ${testCases.filter(tc => tc.type === 'Negative').length}`);
+    console.log(`   - UI: ${testCases.filter(tc => tc.type === 'UI').length}`);
+}
+
+generateTestData().catch(console.error);
